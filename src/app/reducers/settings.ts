@@ -7,9 +7,11 @@ export interface SettingsState {
     fontSize: string;
     fontWeight: string;
     color: string;
+    colorHi: string;
     outline: boolean;
     outlineSize: string;
     outlineColor: string;
+    outlineColorHi: string;
     outputName: string;
     outputSize: number;
     uvAdjustLeft: string;
@@ -30,9 +32,11 @@ export const settingsSlice = createSlice({
         fontSize: '30px',
         fontWeight: 'normal',
         color: '#000000',
+        colorHi: '#000000',
         outline: false,
         outlineSize: '2',
         outlineColor: '#000000',
+        outlineColorHi: '#000000',
         outputName: 'My_Font',
         outputSize: 20,
         uvAdjustLeft: '0',
@@ -62,6 +66,9 @@ export const settingsSlice = createSlice({
         setColor: (state, action) => {
             state.color = action.payload;
         },
+        setColorHi: (state, action) => {
+            state.colorHi = action.payload;
+        },
         setOutline: (state, action) => {
             state.outline = action.payload;
         },
@@ -70,6 +77,9 @@ export const settingsSlice = createSlice({
         },
         setOutlineColor: (state, action) => {
             state.outlineColor = action.payload;
+        },
+        setOutlineColorHi: (state, action) => {
+            state.outlineColorHi = action.payload;
         },
         setOutputName: (state, action) => {
             state.outputName = action.payload;

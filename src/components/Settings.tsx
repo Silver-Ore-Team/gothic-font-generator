@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { LocalFont, localFontService } from "../service/local-font.service";
 import { Accordion, Button, ButtonGroup, ButtonToolbar, Form } from "react-bootstrap";
@@ -12,9 +12,11 @@ function Settings() {
     const [localFontsMessage, setLocalFontsMessage] = useState('');
     const [localFonts, setLocalFonts] = useState<LocalFont[]>([]);
 
-    if (!localFontService.queryLocalFontsAvailable) {
-        setLocalFontsMessage('window.queryLocalFonts not available in your browser');
-    }
+    useEffect(() => {
+        if (!localFontService.queryLocalFontsAvailable) {
+            setLocalFontsMessage('window.queryLocalFonts not available in your browser');
+        }
+    });
     
     const queryFonts = async () => {
         if (!localFontService.queryLocalFontsAvailable) {
@@ -134,6 +136,15 @@ function Settings() {
                                 onChange={e => dispatch(settingsActions.setColor(e.target.value))} 
                             />
                         </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Color (HI)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={settings.colorHi} 
+                                onChange={e => dispatch(settingsActions.setColorHi(e.target.value))} 
+                            />
+                        </Form.Group>
                     </Accordion.Body>
                 </Accordion.Item>
 
@@ -165,6 +176,15 @@ function Settings() {
                                 type="text"
                                 value={settings.outlineColor} 
                                 onChange={e => dispatch(settingsActions.setOutlineColor(e.target.value))} 
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Color (HI)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={settings.outlineColorHi} 
+                                onChange={e => dispatch(settingsActions.setOutlineColorHi(e.target.value))} 
                             />
                         </Form.Group>
                     </Accordion.Body>

@@ -9,14 +9,6 @@ import FontCanvas from './components/FontCanvas';
 import { Col, Container, Row } from 'react-bootstrap';
 
 function App() {
-  const font = useSelector<State, string>(state => state.settings.font);
-  const dispatch = useDispatch();
-
-  const queryFonts = async () => {
-      const fonts = await localFontService.queryLocalFonts();
-      console.log(fonts);
-  };
-
   return (
     <div className="App pb-4">
       <Container fluid>

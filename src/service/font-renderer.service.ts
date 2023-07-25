@@ -16,23 +16,28 @@ export interface RenderOptions {
 class FontRendererService {
     private _fontData?: FntData;
 
-    public render(canvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement, settings: SettingsState, options?: RenderOptions): void {
+    public render(canvas: HTMLCanvasElement, canvasHi: HTMLCanvasElement, debugCanvas: HTMLCanvasElement, settings: SettingsState, options?: RenderOptions): void {
         const alphabet = this.generateUnicodeAlphabet(settings.codepage);
 
         const size = this.outputSizeDimensions(settings.outputSize);
         canvas.width = size.x;
         canvas.height = size.y;
+        canvasHi.width = size.x;
+        canvasHi.height = size.y;
         debugCanvas.width = size.x;
         debugCanvas.height = size.y;
 
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        const ctxHi = canvasHi.getContext('2d') as CanvasRenderingContext2D;
         const debugCtx = debugCanvas.getContext('2d') as CanvasRenderingContext2D;
         ctx.clearRect(0, 0, size.x, size.y);
+        ctxHi.clearRect(0, 0, size.x, size.y);
         debugCtx.clearRect(0, 0, size.x, size.y);
 
         ctx.font = `${settings.fontStyle} ${settings.fontSize} ${settings.font}`;
+        ctxHi.font = `${settings.fontStyle} ${settings.fontSize} ${settings.font}`;
         ctx.fillStyle = settings.color;
-        ctx.fillStyle = settings.color;
+        ctxHi.fillStyle = settings.colorHi;
 
         const sizeX = (canvas.width) / 28;
         const sizeY = (canvas.height) / 12;
@@ -54,9 +59,9 @@ class FontRendererService {
                 const offsetY = y * sizeY;
                 
                 const metrics = ctx.measureText(character);
-                const fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                const fontHeight = sizeY;
                 const paddingX = Math.max((sizeX - metrics.width) / 2, 2);
-                const paddingY = Math.max((sizeY - fontHeight) / 2, 2);
+                const paddingY = Math.max((sizeY - fontHeight / 2) / 2, 2);
                 const positionX = offsetX + paddingX;
                 const positionY = offsetY - paddingY + fontHeight;
 
@@ -83,9 +88,13 @@ class FontRendererService {
                     ctx.lineWidth = size;
                     ctx.strokeStyle = settings.outlineColor;
                     ctx.strokeText(character, positionX, positionY, sizeX);
+                    ctxHi.lineWidth = size;
+                    ctxHi.strokeStyle = settings.outlineColorHi;
+                    ctxHi.strokeText(character, positionX, positionY, sizeX);
                 }
 
                 ctx.fillText(character, positionX, positionY, sizeX);
+                ctxHi.fillText(character, positionX, positionY, sizeX);
             }
         }
     }
@@ -109,7 +118,6 @@ class FontRendererService {
         bytes.push(0x0A);
 
         // Height
-        console.log(this._fontData.height);
         this.writeInt32(this._fontData.height, bytes);
 
         // Letters

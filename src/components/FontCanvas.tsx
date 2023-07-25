@@ -12,6 +12,7 @@ function FontCanvas() {
     const outputSize = useSelector<State, number>(state => state.settings.outputSize);
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasHiRef = useRef<HTMLCanvasElement>(null);
     const debugCanvasRef = useRef<HTMLCanvasElement>(null);
     const [containerHeight, setContainerHeight] = useState('auto');
     const [processing, setProcessning] = useState(false);
@@ -21,7 +22,6 @@ function FontCanvas() {
     const onContainerResize = (element: HTMLDivElement) => {
         const width = element.clientWidth;
         const height = `${width / 2}px`;
-        console.log(width);
         if (containerHeight !== height) {
             setContainerHeight(`${width / 2}px`);
         }
@@ -29,9 +29,10 @@ function FontCanvas() {
 
     const onDrawClick = () => {
         const canvas = canvasRef.current;
+        const canvasHi = canvasHiRef.current;
         const debugCanvas = debugCanvasRef.current;
-        if (canvas && debugCanvas) {
-            fontRendererService.render(canvas, debugCanvas, settings, {
+        if (canvas && canvasHi && debugCanvas) {
+            fontRendererService.render(canvas, canvasHi, debugCanvas, settings, {
                 debugUV: settings.showDebugUV
             });
         }
@@ -39,9 +40,12 @@ function FontCanvas() {
 
     const onDownloadTga = async (): Promise<void> => {
         const canvas = canvasRef.current;
-        if (canvas) {
+        const canvasHi = canvasHiRef.current;
+        if (canvas && canvasHi) {
             setTgaProcessning(true);
             return new Promise((resolve, error) => {
+                let semaphor = 0;
+
                 canvas.toBlob(blob => {
                     if (blob) {
                         blob.arrayBuffer().then(buf => {
@@ -75,11 +79,55 @@ function FontCanvas() {
                             link.setAttribute('download', `${settings.outputName}.TGA`);
                             link.setAttribute('href', dataUrl.replace("image/tga", "image/octet-stream"));
                             link.click();
+                            semaphor++;
+                            if (semaphor == 2) {
+                                setTgaProcessning(false);
+                                resolve();
+                            }
+                        });
+                    } else {
+                        setTgaProcessning(false);
+                    }
+                }, "image/png");
+
+                canvasHi.toBlob(blob => {
+                    if (blob) {
+                        blob.arrayBuffer().then(buf => {
+                            const bytes = new Uint8Array(buf);
+                            const image = decodePng({ data: bytes });
+                            if (!image) {
+                                console.error('Could not decode image');
+                                setTgaProcessning(false);
+                                error('Could not decode image');
+                                return;
+                            }
+                            image.remapChannels(ChannelOrder.bgra);
+                            const tgaImage = image.convert({
+                                numChannels: 4,
+                                alpha: 1,
+                                withPalette: false
+                            });
+                            for (let y = 0; y < tgaImage.height; y++) {
+                                for (let x = 0; x < tgaImage.width; x++) {
+                                    const rgbaColor = tgaImage.getPixelLinear(x, y);
+                                    tgaImage.setPixelRgba(x, y, rgbaColor.b, rgbaColor.g, rgbaColor.r, rgbaColor.a);
+                                }
+                            }
+                            const tgaBytes = encodeTga({ 
+                                image: tgaImage
+                            });
+                            tgaBytes.set([8], 0x11); // Set alphaBits = 8
+                            const tgaBase64 = btoa(tgaBytes.reduce((data, byte) => data + String.fromCharCode(byte), ''));
+                            const dataUrl = `data:image/tga;base64,${tgaBase64}`;
+                            const link = document.getElementById('download') as HTMLLinkElement;
                             link.setAttribute('download', `${settings.outputName}_HI.TGA`);
                             link.setAttribute('href', dataUrl.replace("image/tga", "image/octet-stream"));
                             link.click();
-                            setTgaProcessning(false);
-                            resolve();
+                            semaphor++;
+                            if (semaphor == 2) {
+                                setTgaProcessning(false);
+                                resolve();
+                            }
                         });
                     } else {
                         setTgaProcessning(false);
@@ -118,10 +166,15 @@ function FontCanvas() {
 
     useEffect(() => {
         const canvas = canvasRef.current;
+        const canvasHi = canvasHiRef.current;
         const debugCanvas = debugCanvasRef.current;
         if (canvas) {
             canvas.width = 512 * outputSize / 10;
             canvas.height = 256 * outputSize / 10;
+        }
+        if (canvasHi) {
+            canvasHi.width = 512 * outputSize / 10;
+            canvasHi.height = 256 * outputSize / 10;
         }
         if (debugCanvas) {
             debugCanvas.width = 512 * outputSize / 10;
@@ -177,6 +230,7 @@ function FontCanvas() {
             {settings.showReference && <img className="FontCanvas-reference" 
                 src={`/examples/${settings.outputSize == 20 ? 'Font_20_Book_Hi.png' : 'Font_10_Book_Hi.png'}`}
                 style={{height: containerHeight, maxWidth: '1024px'}} />}
+            <canvas ref={canvasHiRef} style={{height: containerHeight, maxWidth: '1024px', opacity: 0}}></canvas>
             <canvas ref={debugCanvasRef} style={{height: containerHeight, maxWidth: '1024px'}}></canvas>
             <canvas ref={canvasRef} style={{height: containerHeight, maxWidth: '1024px'}}></canvas>
             <div>&nbsp;</div>
