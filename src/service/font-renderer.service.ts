@@ -71,7 +71,10 @@ class FontRendererService {
 
                 if (options?.debugUV) {
                     debugCtx.fillStyle = '#0000ff';
+                    debugCtx.lineWidth = 2;
+                    debugCtx.strokeStyle = '#ff0000';
                     debugCtx.globalAlpha = 0.25;
+                    debugCtx.strokeRect(positionX - uvAdjustLeft, offsetY - uvAdjustTop, metrics.width + uvAdjustRight + uvAdjustLeft, fontHeight + uvAdjustBottom + uvAdjustTop);
                     debugCtx.fillRect(positionX - uvAdjustLeft, offsetY - uvAdjustTop, metrics.width + uvAdjustRight + uvAdjustLeft, fontHeight + uvAdjustBottom + uvAdjustTop);
                 }
 

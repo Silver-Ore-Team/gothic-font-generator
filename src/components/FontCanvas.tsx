@@ -5,7 +5,7 @@ import { State } from '../app/store';
 import { SettingsState } from '../app/reducers/settings';
 import { Button, ButtonGroup, ButtonToolbar, Spinner } from 'react-bootstrap';
 import { fontRendererService } from '../service/font-renderer.service';
-import { ChannelOrder, decodeImage, decodePng, encodeTga } from 'image-in-browser';
+import { ChannelOrder, Color, decodeImage, decodePng, encodeTga } from 'image-in-browser';
 
 function FontCanvas() {
     const settings = useSelector<State, SettingsState>(state => state.settings);
@@ -53,15 +53,18 @@ function FontCanvas() {
                                 error('Could not decode image');
                                 return;
                             }
+                            image.remapChannels(ChannelOrder.bgra);
                             const tgaImage = image.convert({
                                 numChannels: 4,
                                 alpha: 1,
                                 withPalette: false
                             });
-                            tgaImage.remapChannels(ChannelOrder.bgra);
-                            console.log(`png bpc = ${image.bitsPerChannel}`);
-                            console.log(`tga bpc = ${tgaImage.bitsPerChannel}`);
-                            console.log(`tga channels = ${tgaImage.numChannels}`);
+                            for (let y = 0; y < tgaImage.height; y++) {
+                                for (let x = 0; x < tgaImage.width; x++) {
+                                    const rgbaColor = tgaImage.getPixelLinear(x, y);
+                                    tgaImage.setPixelRgba(x, y, rgbaColor.b, rgbaColor.g, rgbaColor.r, rgbaColor.a);
+                                }
+                            }
                             const tgaBytes = encodeTga({ 
                                 image: tgaImage
                             });

@@ -66,7 +66,8 @@ function Settings() {
                             <li>FNT - _work/Data/Textures/_compiled/</li>
                         </ul>
                         <p style={{fontSize: '0.8rem'}}>
-                            Some fonts may be drawn outside of calculated bounding box. In such case, you can adjust bounding box size in "UV Adjust".
+                            UV mapping is essential for proper text composing, so you can adjust the bounding boxes in "UV Adjust" tab. 
+                            Font should have some padding on top and/or bottom to render nicely in multi-line texts.
                         </p>
                     </Accordion.Body>
                 </Accordion.Item>
