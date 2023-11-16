@@ -93,8 +93,10 @@ function Settings() {
                         <Form.Group className="mb-2">
                             <Form.Label>Code Page</Form.Label>
                             <Form.Select value={settings.codepage} onChange={e => dispatch(settingsActions.setCodepage(e.target.value))}>
-                                <option value="windows-1250">CP 1250 (English, German, Polish, ...)</option>
-                                <option value="windows-1251">CP 1251 (Russian)</option>
+                                <option value="windows-1250">CP 1250 (Czech, Polish, Hungarian, Romanian)</option>
+                                <option value="windows-1251">CP 1251 (Russian, Ukrainian)</option>
+                                <option value="windows-1252">CP 1252 (German, English, French, Italian, Spanish)</option>
+                                <option value="windows-1254">CP 1254 (Turkish)</option>
                             </Form.Select>
                         </Form.Group>
 
