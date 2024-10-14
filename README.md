@@ -4,7 +4,7 @@ Web tool for generating bitmap fonts for Gothic games based on ZenGin from any f
 ![Screenshot](.github/screenshot.png)
 
 ## Try Online
-https://gothic-font.gitcloud.pl/
+[https://gothic-font.gitcloud.pl/](https://gothic-font.ongeek.cloud/)
 
 ## Development
 To work with the project you need Node.js and npm. 
