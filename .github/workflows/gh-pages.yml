@@ -16,6 +16,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build static files
+        env:
+          CI: false
         run: npm run build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
